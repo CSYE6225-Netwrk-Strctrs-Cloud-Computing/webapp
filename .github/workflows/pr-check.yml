@@ -1,0 +1,48 @@
+name: Node.js CI with MySQL
+
+on:
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:latest
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DATAB_PASS }}  # Ensure this secret exists
+          MYSQL_DATABASE: ${{ secrets.DATAB_NAME }}       # Ensure this secret exists
+          MYSQL_USER: ${{ secrets.DATAB_USER }}           # Ensure this secret exists
+          MYSQL_PASSWORD: ${{ secrets.DATAB_PASS }}       # Ensure this secret exists
+        options: >
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -u root --password=${{ secrets.DATAB_PASS }}"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+        
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Configure Environment Variables
+        run: |
+          echo > .env
+          echo DATAB_NAME=${{ secrets.DATAB_NAME }} >> .env
+          echo DATAB_USER=${{ secrets.DATAB_USER }} >> .env
+          echo DATAB_PASS=${{ secrets.DATAB_PASS }} >> .env
+          echo DATAB_HOST=127.0.0.1 >> .env  # MySQL service host
+
+      - name: Run Tests
+        run: npm test
