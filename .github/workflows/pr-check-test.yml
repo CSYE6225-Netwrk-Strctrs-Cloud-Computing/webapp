@@ -1,74 +1,27 @@
-name: webapp testing for writtenss
+name: Run web app unit Tests
 
 on:
   pull_request:
     branches:
-      - main  
+      - main 
 
 jobs:
-  pr-check:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '20'
+        node-version: '18'  
 
-    - name: Install MySQL
-      run: |
-        sudo apt update
-        sudo apt install -y mysql-server
-        sudo systemctl start mysql
-        sudo systemctl enable mysql  # Enable MySQL to start on boot
+    - name: Install dependencies
+      run: npm install
 
-    - name: Configure MySQL
+    - name: Run tests
       env:
-        DB_NAME: ${{ secrets.DATAB_NAME }}    
-        DB_USER: ${{ secrets.DATAB_USER }}
-        DB_PASSWORD: ${{ secrets.DATAB_PASS }}
-      run: |
-        echo "Creating database and user..."
-        set -e
-        sudo mysql -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`;"
-        sudo mysql -e "CREATE USER IF NOT EXISTS '${DB_USER}'@'127.0.0.1' IDENTIFIED BY '${DB_PASSWORD}';"
-        sudo mysql -e "GRANT ALL PRIVILEGES ON \`${DB_NAME}\`.* TO '${DB_USER}'@'127.0.0.1';"
-        sudo mysql -e "FLUSH PRIVILEGES;"
-
-    - name: Check MySQL Connectivity
-      env:
-        DB_USER: ${{ secrets.DATAB_USER }}
-        DB_PASSWORD: ${{ secrets.DATAB_PASS }}
-      run: |
-        echo "Testing MySQL connection..."
-        sleep 10  # Wait for MySQL to start
-        for i in {1..10}; do  # Increase the number of attempts
-          if mysql -u "${DB_USER}" -p"${DB_PASSWORD}" -h "127.0.0.1" -e "SHOW DATABASES;" > /dev/null 2>&1; then
-            echo "MySQL is reachable!"
-            break
-          fi
-          echo "Waiting for MySQL to be reachable..."
-          sleep 3
-        done
-
-    - name: Configure Env
-      run: |
-        echo > .env
-        echo DATAB_HOST=127.0.0.1 >> .env
-        echo DATAB_USER=${{ secrets.DATAB_USER }} >> .env
-        echo DATAB_PASS=${{ secrets.DATAB_PASS }} >> .env
-        echo DATAB_NAME=${{ secrets.DATAB_NAME }} >> .env
-        echo PORT=3000 >> .env
-
-    - name: Install Dependencies
-      run: npm ci
-
-    - name: Run Tests
+        NODE_ENV: ${{ secrets.NODE_ENV }}  
       run: npm test
-
-    - name: Check Secrets
-      run: |
-        echo "DB_USER is set: ${DB_USER:+true}"
-        echo "DB_NAME is set: ${DB_NAME:+true}"
