@@ -1,60 +1,25 @@
-name: Webapp Testing for Writtenss
+name: PR Check
 
 on:
   pull_request:
     branches:
-      - main  
+      - main  # Adjust according to your main branch name
 
 jobs:
-  pr-check:
+  test:
     runs-on: ubuntu-latest
 
-    services:
-      mysql:
-        image: mysql:latest
-        env:
-          MYSQL_DATABASE: ${{ secrets.DATAB_NAME }}
-          MYSQL_USER: ${{ secrets.DATAB_USER }}
-          MYSQL_PASSWORD: ${{ secrets.DATAB_PASS }}
-          MYSQL_ROOT_PASSWORD: ${{ secrets.DATAB_PASS }}  # Use the same password as the user's password
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h localhost" 
-          --health-interval=10s 
-          --health-timeout=5s 
-          --health-retries=3
-
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v2
 
     - name: Set up Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v2
       with:
-        node-version: '20'
+        node-version: '20'  
 
-    - name: Wait for MySQL to be ready
-      run: |
-        for i in {1..30}; do
-          if mysqladmin ping -h 127.0.0.1 -u root --password=${{ secrets.DATAB_PASS }}; then
-            echo "MySQL is up and running!"
-            break
-          fi
-          echo "Waiting for MySQL..."
-          sleep 2
-        done
-
-    - name: Configure MySQL Env
-      run: |
-        echo > .env
-        echo DATAB_HOST=127.0.0.1 >> .env  # Use 127.0.0.1 for containerized MySQL
-        echo DATAB_USER=${{ secrets.DATAB_USER }} >> .env
-        echo DATAB_PASS=${{ secrets.DATAB_PASS }} >> .env
-        echo DATAB_NAME=${{ secrets.DATAB_NAME }} >> .env
-        echo PORT=3000 >> .env
-
-    - name: Install Dependencies
+    - name: Install dependencies
       run: npm install
 
-    - name: Run MySQL Tests
-      run: npm test
+    - name: Run tests
+      run: npm test  

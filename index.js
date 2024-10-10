@@ -300,6 +300,8 @@ app.listen(port, async () => {
         }
     })
 
-module.exports = { app, sequelize, User };
+module.exports = { app, sequelize, User, CheckDatabaseConnection, CheckDownstreamAPI };
+
+
 
   
