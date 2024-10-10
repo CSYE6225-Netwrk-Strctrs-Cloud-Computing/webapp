@@ -300,6 +300,6 @@ app.listen(port, async () => {
         }
     })
 
-    module.exports = { app };
+module.exports = { app, sequelize, User };
 
   

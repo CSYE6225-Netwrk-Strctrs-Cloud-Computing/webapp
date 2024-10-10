@@ -1,17 +1,18 @@
-const { app } = require('./index');  
-const request = require('supertest');
+const app = require("./index").app; 
+const request = require("supertest");
 
 describe("GET /healthz", () => {
-  it("should return 200 when the application is healthy", async () => {
+  it("returns 200 on hitting with HTTP GET method", async () => {
     await request(app)
-      .get("/healthz")
+      .get("/healthz") 
       .set("Accept", "application/json")
       .expect(200);
   });
 
-  it("should return 405 for non-GET requests", async () => {
+  it("returns 405 Method Not Allowed for POST method", async () => {
     await request(app)
-      .post("/healthz")  // Testing a non-GET method (POST)
-      .expect(405);
+      .post("/healthz") 
+      .set("Accept", "application/json")
+      .expect(405); 
   });
 });
