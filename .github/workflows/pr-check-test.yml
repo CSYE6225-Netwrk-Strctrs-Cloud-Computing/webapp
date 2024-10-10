@@ -1,4 +1,4 @@
-name: webapp testing for written
+name: webapp testing for writtenss
 
 on:
   pull_request:
