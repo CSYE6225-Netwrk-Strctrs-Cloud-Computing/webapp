@@ -290,19 +290,14 @@ app.all('/v1/users/self', (req, res) => {
 });
 
 
-const startServer = async () => {
-    try {
-        await sequelize.sync({ force: true }); 
-        app.listen(port, () => {
-            console.log(`Health check API listening at http://localhost:${port}`);
-        });
-    } catch (error) {
-        console.error('Failed to sync database:', error);
-    }
-};
-
-if (require.main === module) {
-    startServer();
-}
+app.listen(port, async () => {
+        try {
+            await sequelize.sync({ force: true });
+    console.log(`Health check API listening at http://localhost:${port}`);
+        }
+        catch (error) {
+            console.error('Failed to sync database:', error);
+        }
+    })
 
 module.exports = { app, sequelize, User };
