@@ -3,7 +3,7 @@ name: webapp testing for writtenss
 on:
   pull_request:
     branches:
-        -main
+      - main  # Ensure there's a space after '-'
 
 jobs:
   pr-check:
@@ -18,13 +18,13 @@ jobs:
       with:
         node-version: '20'
 
-    - name: mysql
+    - name: Install MySQL
       run: |
         sudo apt update
         sudo apt install -y mysql-server
         sudo systemctl start mysql
 
-    - name: Configure mysql
+    - name: Configure MySQL
       env:
         DB_NAME: ${{ secrets.DATAB_NAME }}    
         DB_USER: ${{ secrets.DATAB_USER }}
@@ -44,8 +44,13 @@ jobs:
         echo DATAB_NAME=${{ secrets.DATAB_NAME }} >> .env
         echo PORT=3000 >> .env
 
-    - name: Install Dep
+    - name: Install Dependencies
       run: npm install
 
-    - name: Run Test
+    - name: Run Tests
       run: npm test
+
+    - name: Check Secrets
+      run: |
+        echo "DB_USER is set: ${{ secrets.DATAB_USER }}"
+        echo "DB_NAME is set: ${{ secrets.DATAB_NAME }}"
