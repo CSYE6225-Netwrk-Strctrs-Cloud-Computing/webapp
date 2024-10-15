@@ -8,7 +8,7 @@ on:
 jobs:
   pr-check:
     runs-on: ubuntu-latest
-
+    
     steps:
     - uses: actions/checkout@v4
 
@@ -17,34 +17,48 @@ jobs:
       with:
         node-version: '20'
 
-    - name: Shutdown Default MySQL
+    - name: Shutdown Default MySQL (if running)
       run: |
-        sudo service mysql stop
+        sudo service mysql stop || echo "No default MySQL service to stop."
 
-    - name: Set up MySQL
-      uses: mirromutth/mysql-action@v1.1
-      with:
-        mysql-version: '5.7'                           # Specify the MySQL version
-        mysql-root-password: ${{ secrets.MYSQL_ROOT_PASSWORD }} # Root password
-        mysql-database: ${{ secrets.DATAB_NAME }}      # Database name to create
-        mysql-user: ${{ secrets.DATAB_USER }}          # Username to create
-        mysql-password: ${{ secrets.DATAB_PASS }}      # Password for the new user
-        host-port: '3306'                               # Host port
-        container-port: '3306'                          # Container port
-        character-set-server: 'utf8'                    # Character set (optional)
-        collation-server: 'utf8_general_ci'             # Collation (optional)
+    - name: Install MySQL
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y mysql-server
+        sudo service mysql start
+
+    - name: Configure MySQL
+      env:
+        DB_NAME: ${{ secrets.MYSQL_DATABASE }}    
+        DB_USER: ${{ secrets.MYSQL_USER }}
+        DB_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+        DB_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+      run: |
+        # Secure MySQL installation (optional)
+        sudo mysql -e "UPDATE mysql.user SET authentication_string=PASSWORD('${DB_ROOT_PASSWORD}') WHERE User='root';"
+        sudo mysql -e "FLUSH PRIVILEGES;"
+
+        # Create database and user
+        sudo mysql -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`;"
+        sudo mysql -e "CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';"
+        sudo mysql -e "GRANT ALL PRIVILEGES ON \`${DB_NAME}\`.* TO '${DB_USER}'@'localhost';"
+        sudo mysql -e "FLUSH PRIVILEGES;"
 
     - name: Configure Env
       run: |
         echo > .env
-        echo DATAB_HOST=localhost >> .env
-        echo DATAB_USER=${{ secrets.DATAB_USER }} >> .env
-        echo DATAB_PASS=${{ secrets.DATAB_PASS }} >> .env
-        echo DATAB_NAME=${{ secrets.DATAB_NAME }} >> .env
-        echo PORT=3000 >> .env
+        echo "DATAB_HOST=localhost" >> .env
+        echo "DATAB_USER=${{ secrets.MYSQL_USER }}" >> .env
+        echo "DATAB_PASS=${{ secrets.MYSQL_PASSWORD }}" >> .env
+        echo "DATAB_NAME=${{ secrets.MYSQL_DATABASE }}" >> .env
+        echo "PORT=3000" >> .env
 
     - name: Install Dependencies
       run: npm install
 
     - name: Run Tests
       run: npm test
+
+    - name: Shutdown MySQL
+      run: |
+        sudo service mysql stop
