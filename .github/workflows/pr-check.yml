@@ -1,4 +1,4 @@
-name: Webapp Testing for Writtenss
+name: webapp testing for writtenss
 
 on:
   pull_request:
@@ -18,18 +18,21 @@ jobs:
         node-version: '20'
 
     - name: Shutdown Default MySQL
-      run: sudo service mysql stop
+      run: |
+        sudo service mysql stop
 
     - name: Set up MySQL
       uses: mirromutth/mysql-action@v1.1
       with:
-        mysql-version: '5.7' # Specify the MySQL version you want
-        mysql-root-password: ${{ secrets.MYSQL_ROOT_PASSWORD }} # Set your root password in secrets
-        mysql-database: ${{ secrets.DATAB_NAME }} # Your database name
-        mysql-user: ${{ secrets.DATAB_USER }} # Your database user
-        mysql-password: ${{ secrets.DATAB_PASS }} # Your user password
-        host-port: 3306 # MySQL host port
-        container-port: 3306 # MySQL container port
+        mysql-version: '5.7'                           # Specify the MySQL version
+        mysql-root-password: ${{ secrets.MYSQL_ROOT_PASSWORD }} # Root password
+        mysql-database: ${{ secrets.DATAB_NAME }}      # Database name to create
+        mysql-user: ${{ secrets.DATAB_USER }}          # Username to create
+        mysql-password: ${{ secrets.DATAB_PASS }}      # Password for the new user
+        host-port: '3306'                               # Host port
+        container-port: '3306'                          # Container port
+        character-set-server: 'utf8'                    # Character set (optional)
+        collation-server: 'utf8_general_ci'             # Collation (optional)
 
     - name: Configure Env
       run: |
@@ -45,8 +48,3 @@ jobs:
 
     - name: Run Tests
       run: npm test
-
-    - name: Check Secrets
-      run: |
-        echo "DB_USER is set: ${{ secrets.DATAB_USER }}"
-        echo "DB_NAME is set: ${{ secrets.DATAB_NAME }}"
