@@ -2,14 +2,6 @@ const request = require('supertest');
 const { app, sequelize, User } = require('./index'); 
 const bcrypt = require('bcrypt');
 
-beforeAll(async () => {
-    await sequelize.sync({ force: true }); 
-});
-
-afterAll(async () => {
-    await sequelize.close(); 
-});
-
 describe('checking User Registration here:', () => {
     const userData = {
         email: 'tanujkodali0409@gmail.com',

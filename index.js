@@ -293,7 +293,7 @@ app.all('/v1/users/self', (req, res) => {
 
 app.listen(port, async () => {
         try {
-            await sequelize.sync({ force: true });
+            await sequelize.sync();
     console.log(`Health check API listening at http://localhost:${port}`);
         }
         catch (error) {
