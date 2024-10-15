@@ -10,28 +10,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check out the code
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '20'
 
-    - name: Shut down Default MySQL
-      run: |
-        sudo systemctl stop mysql || true  # Shutdown the Default MySQL service if it exists
+    - name: Shutdown Default MySQL
+      run: sudo service mysql stop
 
-    - name: Set up MySQL in Docker
+    - name: Set up MySQL
       uses: mirromutth/mysql-action@v1.1
       with:
-        mysql-version: '5.7'  # Specify the MySQL version
-        mysql-root-password: 'root'  # Set root password
-        mysql-database: ${{ secrets.DATAB_NAME }}  # Create the database
-        mysql-user: ${{ secrets.DATAB_USER }}  # Create the user
-        mysql-password: ${{ secrets.DATAB_PASS }}  # Set user password
-        host-port: 3306  # Ensure you are using the same host port
-        container-port: 3306  # This should also be 3306
+        mysql-version: '5.7' # Specify the MySQL version you want
+        mysql-root-password: ${{ secrets.MYSQL_ROOT_PASSWORD }} # Set your root password in secrets
+        mysql-database: ${{ secrets.DATAB_NAME }} # Your database name
+        mysql-user: ${{ secrets.DATAB_USER }} # Your database user
+        mysql-password: ${{ secrets.DATAB_PASS }} # Your user password
+        host-port: 3306 # MySQL host port
+        container-port: 3306 # MySQL container port
 
     - name: Configure Env
       run: |
@@ -48,5 +46,7 @@ jobs:
     - name: Run Tests
       run: npm test
 
-    - name: Shut down MySQL after tests
-      run: sudo systemctl stop mysql  # Shutdown MySQL service after tests
+    - name: Check Secrets
+      run: |
+        echo "DB_USER is set: ${{ secrets.DATAB_USER }}"
+        echo "DB_NAME is set: ${{ secrets.DATAB_NAME }}"
