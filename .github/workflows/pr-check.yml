@@ -41,9 +41,11 @@ jobs:
 
       - name: Run tests
         env:
-          DATAB_NAME: ${{ secrets.DATAB_NAME }}
+          DATAB_HOST: localhost
           DATAB_USER: ${{ secrets.DATAB_USER }}
           DATAB_PASS: ${{ secrets.DATAB_PASS }}
-          DATAB_HOST: localhost
+          DATAB_NAME: ${{ secrets.DATAB_NAME }}
+          PORT: 3000
+          NODE_ENV: test
           DATAB_PORT: 5432
         run: npm test
