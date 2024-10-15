@@ -1,64 +1,72 @@
-name: webapp testing for writtenss
+name: Integration Test Workflow
 
 on:
   pull_request:
     branches:
-      - main  
+      - main
 
 jobs:
-  pr-check:
+  connect-mysql:
     runs-on: ubuntu-latest
-    
+
+    env:
+      DATAB_HOST: ${{ secrets.MYSQL_SERVER_URL }}
+      DATAB_USER: ${{ secrets.MYSQL_USERNAME }}
+      DATAB_PASS: ${{ secrets.MYSQL_PASSWORD }}
+      DATAB_NAME: ${{ secrets.MYSQL_DATABASE }}
+      MYSQL_PORT: ${{ secrets.MYSQL_PORT }}
+      NODE_ENV: test
+
     steps:
-    - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '20'
+      - name: Set up MySQL client
+        uses: shogo82148/actions-setup-mysql@v1
+        with:
+          mysql-version: "8.0"
 
-    - name: Shutdown Default MySQL (if running)
-      run: |
-        sudo service mysql stop || echo "No default MySQL service to stop."
+      - name: Set MySQL Root Password
+        run: |
+          mysql -u ${{ secrets.MYSQL_USERNAME }} --skip-password -e "ALTER USER ${{ secrets.MYSQL_USERNAME }}@'%' IDENTIFIED BY '${{ secrets.MYSQL_PASSWORD }}';"
 
-    - name: Install MySQL
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y mysql-server
-        sudo service mysql start
+      - name: Create Database
+        run: |
+          mysql -u ${{ secrets.MYSQL_USERNAME }} -p"${{ secrets.MYSQL_PASSWORD }}" -e "CREATE DATABASE IF NOT EXISTS ${{ secrets.MYSQL_DATABASE }};"
 
-    - name: Configure MySQL
-      env:
-        DB_NAME: ${{ secrets.MYSQL_DATABASE }}    
-        DB_USER: ${{ secrets.MYSQL_USER }}
-        DB_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
-        DB_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
-      run: |
-        # Secure MySQL installation (optional)
-        sudo mysql -e "UPDATE mysql.user SET authentication_string=PASSWORD('${DB_ROOT_PASSWORD}') WHERE User='root';"
-        sudo mysql -e "FLUSH PRIVILEGES;"
+      - name: Echo Databases
+        run: |
+          echo "Databases in MySQL Server:"
+          mysql -u ${{ secrets.MYSQL_USERNAME }} -p"${{ secrets.MYSQL_PASSWORD }}" -e "SHOW DATABASES;"
 
-        # Create database and user
-        sudo mysql -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`;"
-        sudo mysql -e "CREATE USER IF NOT EXISTS '${DB_USER}'@'localhost' IDENTIFIED BY '${DB_PASSWORD}';"
-        sudo mysql -e "GRANT ALL PRIVILEGES ON \`${DB_NAME}\`.* TO '${DB_USER}'@'localhost';"
-        sudo mysql -e "FLUSH PRIVILEGES;"
+      - name: Install dependencies
+        run: npm install
 
-    - name: Configure Env
-      run: |
-        echo > .env
-        echo "DATAB_HOST=localhost" >> .env
-        echo "DATAB_USER=${{ secrets.MYSQL_USER }}" >> .env
-        echo "DATAB_PASS=${{ secrets.MYSQL_PASSWORD }}" >> .env
-        echo "DATAB_NAME=${{ secrets.MYSQL_DATABASE }}" >> .env
-        echo "PORT=3000" >> .env
+      - name: Migrate Database (if needed)
+        run: |
+          # Add any migration command if you're using migrations
+          # Example: npm run migrate
 
-    - name: Install Dependencies
-      run: npm install
+      - name: Test Connection to MySQL
+        run: |
+          mysql -h ${{ secrets.MYSQL_SERVER_URL }} -u ${{ secrets.MYSQL_USERNAME }} -p"${{ secrets.MYSQL_PASSWORD }}" -e "SELECT VERSION();"
+        
+      - name: Run Tests
+        run: npm test
+        env:
+          DATAB_HOST: ${{ secrets.MYSQL_SERVER_URL }}
+          DATAB_USER: ${{ secrets.MYSQL_USERNAME }}
+          DATAB_PASS: ${{ secrets.MYSQL_PASSWORD }}
+          DATAB_NAME: ${{ secrets.MYSQL_DATABASE }}
+          MYSQL_PORT: ${{ secrets.MYSQL_PORT }}
+          NODE_ENV: test
 
-    - name: Run Tests
-      run: npm test
-
-    - name: Shutdown MySQL
-      run: |
-        sudo service mysql stop
+      - name: Stop MySQL Server Connection
+        run: |
+          # Check if the MySQL server is running and stop it
+          if mysqladmin -u ${{ secrets.MYSQL_USERNAME }} -p"${{ secrets.MYSQL_PASSWORD }}" ping; then
+            echo "Stopping MySQL server..."
+            mysqladmin -u ${{ secrets.MYSQL_USERNAME }} -p"${{ secrets.MYSQL_PASSWORD }}" shutdown
+          else
+            echo "MySQL server is not running."
+          fi

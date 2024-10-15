@@ -15,7 +15,7 @@ const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = new Sequelize( process.env.DATAB_NAME,process.env.DATAB_USER,process.env.DATAB_PASS,{
     host: process.env.DATAB_HOST,
     dialect:'mysql',
-    port:'3306',
+    port: process.env.DATAB_PORT,
     logging: false
 })
 
