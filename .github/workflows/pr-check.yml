@@ -48,9 +48,7 @@ jobs:
 
       - name: Migrate Database (if needed)
         run: |
-          # Add any migration command if you're using migrations
-          # Example: npm run migrate
-
+        
       - name: Test Connection to MySQL
         run: |
           mysql -h ${{ secrets.MYSQL_SERVER_URL }} -u ${{ secrets.MYSQL_USERNAME }} -p"${{ secrets.MYSQL_PASSWORD }}" -e "SELECT VERSION();"
