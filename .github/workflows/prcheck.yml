@@ -12,8 +12,8 @@ jobs:
       mysql:
         image: mysql:5.7
         env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.DATAB_PASS }}
-          MYSQL_DATABASE: ${{ secrets.DATAB_NAME }}
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.DATABASE_NAME }}
         ports:
           - 3306:3306
         options: >-
@@ -37,9 +37,9 @@ jobs:
     - name: Set environment variables
       run: |
         echo "DATABASE_HOST=127.0.0.1" >> $GITHUB_ENV
-        echo "DATABASE_USERNAME=${{ secrets.DATAB_USER }}" >> $GITHUB_ENV
-        echo "DATABASE_PASSWORD=${{ secrets.DATAB_PASS }}" >> $GITHUB_ENV
-        echo "DATABASE_NAME=${{ secrets.DATAB_NAME}}" >> $GITHUB_ENV
+        echo "DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}" >> $GITHUB_ENV
+        echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> $GITHUB_ENV
+        echo "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" >> $GITHUB_ENV
 
     - name: Run tests
       run: npm test

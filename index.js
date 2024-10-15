@@ -14,10 +14,9 @@ app.use(express.json());
 const { Sequelize, DataTypes } = require('sequelize');
 
 
-const sequelize = new Sequelize( process.env.DATAB_NAME,process.env.DATAB_USER,process.env.DATAB_PASS,{
-    host: process.env.DATAB_HOST,
+const sequelize = new Sequelize( process.env.DATABASE_NAME,process.env.DATABASE_USERNAME,process.env.DATABASE_PASSWORD,{
+    host: process.env.DATABASE_HOST,
     dialect:'mysql',
-    port:'3306',
     logging: false
 })
 
