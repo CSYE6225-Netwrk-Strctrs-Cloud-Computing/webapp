@@ -1,0 +1,51 @@
+name: Webapp Testing for Writtenss
+
+on:
+  pull_request:
+    branches:
+      - main  
+
+jobs:
+  pr-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out the code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+
+    - name: Shut down Default MySQL
+      run: |
+        sudo systemctl stop mysql || true  
+
+    - name: Set up MySQL in Docker
+      uses: mirromutth/mysql-action@v1.1
+      with:
+        mysql-version: '5.7' 
+        mysql-root-password: 'root'  
+        port: 3306  
+        database: ${{ secrets.DATAB_NAME }}  
+        user: ${{ secrets.DATAB_USER }} 
+        password: ${{ secrets.DATAB_PASS }} 
+
+    - name: Configure Env
+      run: |
+        echo > .env
+        echo DATAB_HOST=localhost >> .env
+        echo DATAB_USER=${{ secrets.DATAB_USER }} >> .env
+        echo DATAB_PASS=${{ secrets.DATAB_PASS }} >> .env
+        echo DATAB_NAME=${{ secrets.DATAB_NAME }} >> .env
+        echo PORT=3000 >> .env
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Run Tests
+      run: npm test
+
+    - name: Shut down MySQL after tests
+      run: sudo systemctl stop mysql  

@@ -192,7 +192,7 @@ app.post('/v1/users', async (req, res) => {
             return res.status(400).send(error.message);
         }
         
-    }
+    });
 
 const Authenticateuser = async (req, res, next) => {
         const { authorization } = req.headers;
