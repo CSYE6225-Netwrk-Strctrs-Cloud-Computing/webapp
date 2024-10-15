@@ -12,6 +12,8 @@ const port = process.env.PORT || 8080;
 app.use(express.json());
 
 const { Sequelize, DataTypes } = require('sequelize');
+
+
 const sequelize = new Sequelize( process.env.DATAB_NAME,process.env.DATAB_USER,process.env.DATAB_PASS,{
     host: process.env.DATAB_HOST,
     dialect:'mysql',
