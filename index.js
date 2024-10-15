@@ -272,5 +272,5 @@ const server = application.listen(serverPort, () => {
     initializeDatabase();
 });
 
-export default application; // This exports the Express app
-export { databaseConnection as sequelize, server }; // Export the server instance
+export default application; 
+export { databaseConnection as sequelize, server }; 
