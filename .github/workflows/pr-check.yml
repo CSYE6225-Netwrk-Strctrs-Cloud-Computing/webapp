@@ -30,9 +30,13 @@ jobs:
         run: |
           mysql -u root -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${{ secrets.MYSQL_PASSWORD }}';"
 
+      - name: Change Authentication Method
+        run: |
+          mysql -u root -p"${{ secrets.MYSQL_PASSWORD }}" -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${{ secrets.MYSQL_PASSWORD }}';"
+
       - name: Create Database
         run: |
-          mysql -u root -p"${{ secrets.MYSQL_PASSWORD }}" -e "CREATE DATABASE IF NOT EXISTS ${{ secrets.MYSQL_DATABASE }};"
+          mysql -u root -p"${{ secrets.MYSQL_PASSWORD }}" -e "CREATE DATABASE IF NOT EXISTS \`${{ secrets.MYSQL_DATABASE }}\`;"
 
       - name: Echo Databases
         run: |
