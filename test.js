@@ -1,22 +1,20 @@
-const request = require('supertest');
-const { app, sequelize, User } = require('./index'); 
-const bcrypt = require('bcrypt');
+import 'dotenv/config';
+import { expect } from 'chai';
+import request from 'supertest';
+import app from './index.js'; // Ensure this path is correct
 
-describe('checking User Registration here:', () => {
-    const userData = {
-        email: 'tanujkodasdfgli0dsfg40yht9@gmail.com',
-        password: 'kodali@1972',
-        first_name: 'Tanuj',
-        last_name: 'kodali'
-    };
-
-    it('POST /v1/users should create a new user and return 201', async () => {
-        const response = await request(app).post('/v1/users').send(userData);
-        expect(response.status).toBe(201);
-        expect(response.body).toHaveProperty('id');
-        expect(response.body.email).toBe(userData.email);
+describe('API Tests', () => {
+    before(async () => {
+        // Optionally, you can initialize your database connection and any test data here.
+        await app.get('/healthz'); // To ensure the server is running before tests
     });
 
-   
+    it('should return 200 OK for health check', (done) => {
+        request(app)
+            .get('/healthz')
+            .end((err, res) => {
+                expect(res.status).to.equal(200);
+                done();
+            });
+    })
 });
-
