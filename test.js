@@ -10,12 +10,12 @@ afterAll(async () => {
     await sequelize.close(); 
 });
 
-describe('checking User Registration here:', () => {
+describe('User Registration', () => {
     const userData = {
         email: 'tanujkodali0409@gmail.com',
         password: 'kodali@1972',
         first_name: 'Tanuj',
-        last_name: 'kodali'
+        last_name: 'Kodali'
     };
 
     it('POST /v1/users should create a new user and return 201', async () => {
@@ -33,12 +33,12 @@ describe('checking User Registration here:', () => {
     });
 });
 
-describe('Checking Authentication, Getting User Data and Updating users details:', () => {
+describe('User Authentication and Data Management', () => {
     const userData = {
         email: 'tanujkodali0409@gmail.com',
         password: 'kodali@1972', 
         first_name: 'Tj',
-        last_name: 'kodali'
+        last_name: 'Kodali'
     };
 
     beforeAll(async () => {
@@ -63,7 +63,6 @@ describe('Checking Authentication, Getting User Data and Updating users details:
         expect(response.body).toHaveProperty('message', 'Invalid username'); 
     });
     
-
     it('PUT /v1/users/self should update user data when authenticated', async () => {
         const updatedData = {
             first_name: 'tj',
@@ -78,7 +77,7 @@ describe('Checking Authentication, Getting User Data and Updating users details:
         expect(response.body.first_name).toBe(updatedData.first_name);
         expect(response.body.last_name).toBe(updatedData.last_name);
     });
+    
+ 
 
-   
 });
-
