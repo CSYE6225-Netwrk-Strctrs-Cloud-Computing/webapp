@@ -40,6 +40,7 @@ jobs:
         echo "DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}" >> $GITHUB_ENV
         echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> $GITHUB_ENV
         echo "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" >> $GITHUB_ENV
+        echo "NODE_ENV=${{ secrets.NODE_ENV }}" >> $GITHUB_ENV
 
     - name: Run tests
       run: npm test

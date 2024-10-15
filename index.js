@@ -97,7 +97,7 @@ const basicAuthentication = async (req, res, next) => {
 };
 
 const validatePassword = (password) => {
-    const passwordValidationRegex = /^(?=.[a-z])(?=.[A-Z]).{7,}$/;
+    const passwordValidationRegex = /^(?=.*[a-z])(?=.*[A-Z]).{7,}$/;
     return passwordValidationRegex.test(password);
 };
 
