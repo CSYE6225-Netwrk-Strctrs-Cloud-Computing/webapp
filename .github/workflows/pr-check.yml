@@ -25,12 +25,13 @@ jobs:
     - name: Set up MySQL in Docker
       uses: mirromutth/mysql-action@v1.1
       with:
-        mysql-version: '5.7'  # Specify the version if needed
+        mysql-version: '5.7'  # Specify the MySQL version
         mysql-root-password: 'root'  # Set root password
-        port: 3306  # Ensure you are using the same port
-        database: ${{ secrets.DATAB_NAME }}  # Create the database
-        user: ${{ secrets.DATAB_USER }}  # Create the user
-        password: ${{ secrets.DATAB_PASS }}  # Set user password
+        mysql-database: ${{ secrets.DATAB_NAME }}  # Create the database
+        mysql-user: ${{ secrets.DATAB_USER }}  # Create the user
+        mysql-password: ${{ secrets.DATAB_PASS }}  # Set user password
+        host-port: 3306  # Ensure you are using the same host port
+        container-port: 3306  # This should also be 3306
 
     - name: Configure Env
       run: |
