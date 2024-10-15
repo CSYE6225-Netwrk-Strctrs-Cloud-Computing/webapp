@@ -267,10 +267,10 @@ application.all('/v1/user', (req, res) => {
     res.sendStatus(405);
 });
 
-application.listen(serverPort, () => {
+const server = application.listen(serverPort, () => {
     console.log(`Server running on http://localhost:${serverPort}`);
     initializeDatabase();
 });
 
 export default application; // This exports the Express app
-export { databaseConnection as sequelize }; // This exports the sequelize instance
+export { databaseConnection as sequelize, server }; // Export the server instance
