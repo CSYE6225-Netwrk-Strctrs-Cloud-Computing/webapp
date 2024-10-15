@@ -20,17 +20,17 @@ jobs:
 
     - name: Shut down Default MySQL
       run: |
-        sudo systemctl stop mysql || true  
+        sudo systemctl stop mysql || true  # Shutdown the Default MySQL service if it exists
 
     - name: Set up MySQL in Docker
       uses: mirromutth/mysql-action@v1.1
       with:
-        mysql-version: '5.7' 
-        mysql-root-password: 'root'  
-        port: 3306  
-        database: ${{ secrets.DATAB_NAME }}  
-        user: ${{ secrets.DATAB_USER }} 
-        password: ${{ secrets.DATAB_PASS }} 
+        mysql-version: '5.7'  # Specify the version if needed
+        mysql-root-password: 'root'  # Set root password
+        port: 3306  # Ensure you are using the same port
+        database: ${{ secrets.DATAB_NAME }}  # Create the database
+        user: ${{ secrets.DATAB_USER }}  # Create the user
+        password: ${{ secrets.DATAB_PASS }}  # Set user password
 
     - name: Configure Env
       run: |
@@ -48,4 +48,4 @@ jobs:
       run: npm test
 
     - name: Shut down MySQL after tests
-      run: sudo systemctl stop mysql  
+      run: sudo systemctl stop mysql  # Shutdown MySQL service after tests
