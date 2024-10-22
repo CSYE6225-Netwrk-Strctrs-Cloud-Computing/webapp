@@ -75,7 +75,7 @@ jobs:
           aws ec2 modify-image-attribute \
             --image-id ${{ env.AMI_ID }} \
             --launch-permission "Add=[{UserId=$ACCOUNT_ID}]" \
-            --region us-east-1  # Ensure correct region is used
+            --region us-east-1  
         env:
           AMI_ID: ${{ env.AMI_ID }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
