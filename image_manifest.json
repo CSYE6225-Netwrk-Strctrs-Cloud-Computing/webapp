@@ -1,0 +1,23 @@
+{
+  "builds": [
+    {
+      "name": "ubuntu-webapp",
+      "builder_type": "amazon-ebs",
+      "build_time": 1729392154,
+      "files": null,
+      "artifact_id": "us-east-1:ami-03eb60e789843cb07",
+      "packer_run_uuid": "921703e6-5121-eace-bf94-bf9a428bbc19",
+      "custom_data": null
+    },
+    {
+      "name": "ubuntu-webapp",
+      "builder_type": "amazon-ebs",
+      "build_time": 1729610651,
+      "files": null,
+      "artifact_id": "us-east-1:ami-0884623a12b2ba9a3",
+      "packer_run_uuid": "1832a517-c4a3-689f-53db-9efd9cb33b9e",
+      "custom_data": null
+    }
+  ],
+  "last_run_uuid": "1832a517-c4a3-689f-53db-9efd9cb33b9e"
+}

@@ -1,9 +1,9 @@
 name: Build AMI
 
 on:
-  push:
-    branches:
-      - main
+    pull_request:
+      branches:
+       - main
 
 jobs:
   build:
@@ -28,20 +28,16 @@ jobs:
           chmod +x packer
           sudo mv packer /usr/local/bin/
 
-      - name: Initializing Packer
+      - name: Zip Web App
+        run: zip -r webapp.zip ./
+
+      - name: Initialize Packer
         run: packer init ./main.pkr.hcl
 
       - name: Build the Image
         run: |
-          packer build \
-            -var "aws_region=${{ secrets.AWS_REGION }}" \
-            -var "vpc_id=${{ secrets.VPC_ID }}" \
-            -var "subnet_id=${{ secrets.SUBNET_ID }}" \
-            -var "DB_USER=${{ secrets.DB_USER }}" \
-            -var "DB_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }}" \
-            -var "DB_USER_PASSWORD=${{ secrets.DB_USER_PASSWORD }}" \
-            -var "DB_NAME=${{ secrets.DB_NAME }}" \
-            ./main.pkr.hcl
+          set -e  # Exit on any error
+          packer build ./main.pkr.hcl
 
       - name: Check the content of image_manifest.json
         run: cat image_manifest.json
@@ -59,25 +55,23 @@ jobs:
       - name: Fetch AMI ID
         run: |
           AMI_ID=$(jq -r '.builds[0].artifact_id' image_manifest.json | cut -d':' -f2)
-          echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV  # Save AMI_ID to GITHUB_ENV
+          echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV
           echo "AMI_ID set as: $AMI_ID"
 
       - name: Check AMI_ID in environment
         run: |
           echo "AMI_ID is: ${{ env.AMI_ID }}"
 
-     
       - name: Share AMI with DEMO account
         run: |
-          ACCOUNT_ID="${{ secrets.DEMO_AWS_ACCOUNT_ID }}"  # DEMO AWS account ID
+          ACCOUNT_ID="${{ secrets.DEMO_AWS_ACCOUNT_ID }}"
           echo "Using AMI_ID: ${{ env.AMI_ID }}"
           echo "Using Account ID: $ACCOUNT_ID"
           aws ec2 modify-image-attribute \
             --image-id ${{ env.AMI_ID }} \
             --launch-permission "Add=[{UserId=$ACCOUNT_ID}]" \
-            --region us-east-1  # Ensure correct region is used
+            --region us-east-1
         env:
-          AMI_ID: ${{ env.AMI_ID }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
